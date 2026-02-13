@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tichá studovna · junior.guru</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Love+Ya+Like+A+Sister&family=Cabin+Sketch:wght@400;700&subset=latin-ext&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Dekorace -->
+    <div class="deco deco-star">✦</div>
+    <div class="deco deco-star-2">✧</div>
+    <div class="deco deco-star-3">✦</div>
+
+    <!-- Konfety canvas -->
+    <canvas id="confettiCanvas"></canvas>
+
+    <!-- Oslava overlay -->
+    <div class="celebration-overlay" id="celebrationOverlay">
+      <div class="celebration-content">
+        <img
+          src="./src/junior-guru-maskot-logo-na-tmave-pozadi-{dark-background}-rgb.svg"
+          alt="Kuřátko slaví!"
+          class="celebration-mascot"
+        />
+        <div class="celebration-text">Skvělá práce!</div>
+        <button class="celebration-dismiss" onclick="dismissCelebration()">
+          Tak zase příště!
+        </button>
+      </div>
+    </div>
+
+    <!--
+    === ZVUK PO DOKONČENÍ ===
+    Vlož svůj zvukový soubor (MP3, OGG, WAV...) do stejné složky
+    a uprav cestu v atributu "src" níže.
+    Příklady:
+      <source src="zvuk-hotovo.mp3" type="audio/mpeg">
+      <source src="zvuk-hotovo.ogg" type="audio/ogg">
+      <source src="zvuk-hotovo.wav" type="audio/wav">
+  -->
+    <audio id="finishSound" preload="auto">
+      <source src="zvuk-hotovo.mp3" type="audio/mpeg" />
+      <!-- Sem můžeš přidat další formáty jako zálohu: -->
+      <!-- <source src="zvuk-hotovo.ogg" type="audio/ogg"> -->
+    </audio>
+
+    <!-- Header -->
+    <header class="header">
+      <h2>Tichá studovna</h2>
+    </header>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Maskot -->
+      <!-- 
+    <div class="mascot-container">
+      <img
+        src="./src/junior-guru-maskot-logo-na-svetle-pozadi-{light-background}-rgb.svg"
+        alt="Kuřátko junior.guru"
+        class="mascot"
+      >
+    </div>
+    -->
+
+      <!-- Timer -->
+      <div class="timer-section">
+        <div class="timer-title">⏱ Odpočet studijního času</div>
+
+        <div class="timer-display-container">
+          <div class="timer-set-button">
+            <button class="timer-arrow" onclick="decrementTime()">−</button>
+          </div>
+          <div class="timer-display" id="timerDisplay">60:00</div>
+          <div class="timer-set-button">
+            <button class="timer-arrow" onclick="incrementTime()">+</button>
+          </div>
+        </div>
+
+        <div class="timer-controls">
+          <button class="btn btn-primary" id="startBtn" onclick="startTimer()">
+            ▶ Start
+          </button>
+          <button
+            class="btn btn-secondary"
+            id="pauseBtn"
+            onclick="pauseTimer()"
+            style="display: none"
+          >
+            ⏸ Pauza
+          </button>
+          <button
+            class="btn btn-secondary"
+            id="resetBtn"
+            onclick="resetTimer()"
+          >
+            ↺ Reset
+          </button>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar" style="width: 100%"></div>
+        </div>
+
+        <div class="done-message" id="doneMessage"></div>
+      </div>
+
+      <!-- Hodiny -->
+      <div class="clock-section">
+        <div class="clock-label">aktuální čas</div>
+        <div class="clock" id="clock">00:00:00</div>
+      </div>
+
+      <!-- Motivace -->
+      <p class="motivation" id="motivation"></p>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      Tichá studovna ·
+      <a href="https://junior.guru/" target="_blank" rel="noopener"
+        >junior.guru</a
+      >
+    </footer>
+
+    <script>
+      // =========================================================
+      //  HODINY
+      // =========================================================
+      function updateClock() {
+        var now = new Date();
+        var h = String(now.getHours()).padStart(2, "0");
+        var m = String(now.getMinutes()).padStart(2, "0");
+        var s = String(now.getSeconds()).padStart(2, "0");
+        document.getElementById("clock").textContent = h + ":" + m + ":" + s;
+      }
+
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      // =========================================================
+      //  KONFETY (canvas animace)
+      // =========================================================
+      var confettiCanvas = document.getElementById("confettiCanvas");
+      var confettiCtx = confettiCanvas.getContext("2d");
+      var confettiPieces = [];
+      var confettiAnimationId = null;
+
+      // Barvy konfet — junior.guru paleta + doplňkové
+      var confettiColors = [
+        "#fffa72", // žlutá
+        "#343434", // černá
+        "#1755d1", // modrá (link)
+        "#d94a38", // červená
+        "#4caf50", // zelená
+        "#ff9800", // oranžová
+        "#e91e63", // růžová
+      ];
+
+      function resizeConfettiCanvas() {
+        confettiCanvas.width = window.innerWidth;
+        confettiCanvas.height = window.innerHeight;
+      }
+
+      window.addEventListener("resize", resizeConfettiCanvas);
+      resizeConfettiCanvas();
+
+      /**
+       * Vytvoří jednu konfetu s náhodnými vlastnostmi.
+       * Konfeta padá shora dolů, otáčí se a mírně se kýve do stran.
+       */
+      function createConfettiPiece() {
+        return {
+          x: Math.random() * confettiCanvas.width,
+          y: -10 - Math.random() * 40,
+          width: 6 + Math.random() * 6,
+          height: 10 + Math.random() * 6,
+          color:
+            confettiColors[Math.floor(Math.random() * confettiColors.length)],
+          rotation: Math.random() * 360,
+          rotationSpeed: (Math.random() - 0.5) * 8,
+          speedY: 2 + Math.random() * 3,
+          speedX: (Math.random() - 0.5) * 2,
+          wobble: Math.random() * Math.PI * 2,
+          wobbleSpeed: 0.03 + Math.random() * 0.05,
+        };
+      }
+
+      /**
+       * Spustí animaci konfet.
+       * Vytvoří dávku konfet a pak je nechá padat.
+       */
+      function launchConfetti() {
+        confettiPieces = [];
+
+        // Vytvoříme 120 konfet najednou
+        for (var i = 0; i < 120; i++) {
+          var piece = createConfettiPiece();
+          // Rozložíme start v čase — některé padají dřív, jiné později
+          piece.y = -10 - Math.random() * 300;
+          confettiPieces.push(piece);
+        }
+
+        if (!confettiAnimationId) {
+          animateConfetti();
+        }
+      }
+
+      function animateConfetti() {
+        confettiCtx.clearRect(
+          0,
+          0,
+          confettiCanvas.width,
+          confettiCanvas.height,
+        );
+
+        var alive = false;
+
+        for (var i = 0; i < confettiPieces.length; i++) {
+          var p = confettiPieces[i];
+
+          p.y += p.speedY;
+          p.x += p.speedX + Math.sin(p.wobble) * 0.5;
+          p.rotation += p.rotationSpeed;
+          p.wobble += p.wobbleSpeed;
+
+          // Pokud konfeta ještě nevypadla z obrazovky
+          if (p.y < confettiCanvas.height + 20) {
+            alive = true;
+
+            confettiCtx.save();
+            confettiCtx.translate(p.x, p.y);
+            confettiCtx.rotate((p.rotation * Math.PI) / 180);
+            confettiCtx.fillStyle = p.color;
+            confettiCtx.fillRect(
+              -p.width / 2,
+              -p.height / 2,
+              p.width,
+              p.height,
+            );
+            confettiCtx.restore();
+          }
+        }
+
+        if (alive) {
+          confettiAnimationId = requestAnimationFrame(animateConfetti);
+        } else {
+          // Všechny konfety dopadly — uklidíme
+          confettiAnimationId = null;
+          confettiPieces = [];
+          confettiCtx.clearRect(
+            0,
+            0,
+            confettiCanvas.width,
+            confettiCanvas.height,
+          );
+        }
+      }
+
+      // =========================================================
+      //  OSLAVA (overlay s kuřátkem)
+      // =========================================================
+      var celebrationOverlay = document.getElementById("celebrationOverlay");
+
+      function showCelebration() {
+        celebrationOverlay.classList.add("visible");
+      }
+
+      function dismissCelebration() {
+        celebrationOverlay.classList.remove("visible");
+      }
+
+      // =========================================================
+      //  ZVUK
+      // =========================================================
+      var finishSound = document.getElementById("finishSound");
+
+      /**
+       * Přehraje zvuk po dokončení odpočtu.
+       *
+       * Jak přidat vlastní zvuk:
+       * 1. Vlož zvukový soubor (např. zvuk-hotovo.mp3) do stejné
+       *    složky jako tento HTML soubor.
+       * 2. V elementu <audio id="finishSound"> uprav atribut src
+       *    v <source> tagu tak, aby odpovídal názvu tvého souboru.
+       *
+       * Podporované formáty: MP3, OGG, WAV
+       *
+       * Pokud zvuk není nalezen, nic se nestane — stránka
+       * funguje i bez něj.
+       */
+      function playFinishSound() {
+        try {
+          finishSound.currentTime = 0;
+          finishSound.play();
+        } catch (e) {
+          // Zvukový soubor nebyl nalezen nebo prohlížeč zablokoval
+          // přehrání — nevadí, stránka funguje i bez zvuku.
+        }
+      }
+
+      // =========================================================
+      //  TIMER
+      // =========================================================
+      var timerInterval = null;
+      var totalSeconds = 60 * 60;
+      var remainingSeconds = totalSeconds;
+      var isRunning = false;
+
+      var timerDisplay = document.getElementById("timerDisplay");
+      var progressBar = document.getElementById("progressBar");
+      var startBtn = document.getElementById("startBtn");
+      var pauseBtn = document.getElementById("pauseBtn");
+      var doneMessage = document.getElementById("doneMessage");
+
+      function formatTime(seconds) {
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+      }
+
+      function updateDisplay() {
+        timerDisplay.textContent = formatTime(remainingSeconds);
+
+        var progress =
+          totalSeconds > 0 ? (remainingSeconds / totalSeconds) * 100 : 0;
+        progressBar.style.width = progress + "%";
+
+        timerDisplay.classList.toggle(
+          "warning",
+          remainingSeconds <= 300 && remainingSeconds > 0 && isRunning,
+        );
+        timerDisplay.classList.toggle("done", remainingSeconds === 0);
+
+        if (isRunning) {
+          document.title = formatTime(remainingSeconds) + " · Tichá studovna";
+        } else if (remainingSeconds === 0) {
+          document.title = "Hotovo! · Tichá studovna";
+        } else {
+          document.title = "Tichá studovna · junior.guru";
+        }
+      }
+
+      function startTimer() {
+        if (remainingSeconds <= 0) return;
+
+        isRunning = true;
+        doneMessage.classList.remove("visible");
+
+        startBtn.style.display = "none";
+        pauseBtn.style.display = "inline-block";
+
+        document.querySelectorAll(".preset-btn").forEach(function (btn) {
+          btn.disabled = true;
+        });
+
+        timerInterval = setInterval(function () {
+          remainingSeconds--;
+          updateDisplay();
+
+          if (remainingSeconds <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            isRunning = false;
+            timerFinished();
+          }
+        }, 1000);
+      }
+
+      function pauseTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isRunning = false;
+
+        startBtn.style.display = "inline-block";
+        startBtn.textContent = "▶ Pokračovat";
+        pauseBtn.style.display = "none";
+
+        timerDisplay.classList.remove("warning");
+        document.title = "Tichá studovna · junior.guru";
+      }
+
+      function resetTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isRunning = false;
+
+        startBtn.style.display = "inline-block";
+        startBtn.textContent = "▶ Start";
+        pauseBtn.style.display = "none";
+        doneMessage.classList.remove("visible");
+
+        document.querySelectorAll(".preset-btn").forEach(function (btn) {
+          btn.disabled = false;
+        });
+
+        timerDisplay.classList.remove("warning", "done");
+
+        // Schovat oslavu, pokud je vidět
+        dismissCelebration();
+
+        // Reset času na nastavenou hodnotu
+        remainingSeconds = totalSeconds;
+
+        updateDisplay();
+        document.title = "Tichá studovna · junior.guru";
+      }
+
+      /**
+       * Zavolá se, když odpočet dosáhne nuly.
+       * Spustí tři věci:
+       *   1. Přehraje zvuk (z <audio> elementu)
+       *   2. Vystřelí konfety (canvas animace)
+       *   3. Ukáže overlay s kuřátkem a tlačítkem
+       */
+      function timerFinished() {
+        doneMessage.classList.add("visible");
+        startBtn.style.display = "none";
+        pauseBtn.style.display = "none";
+        updateDisplay();
+
+        playFinishSound();
+        launchConfetti();
+        showCelebration();
+      }
+
+      // Šipky pro změnu času
+      function incrementTime() {
+        if (isRunning) return;
+
+        var currentMinutes = Math.floor(totalSeconds / 60);
+        var newMinutes = currentMinutes + 1;
+        if (newMinutes > 180) newMinutes = 180;
+
+        totalSeconds = newMinutes * 60;
+        remainingSeconds = totalSeconds;
+        updateDisplay();
+      }
+
+      function decrementTime() {
+        if (isRunning) return;
+
+        var currentMinutes = Math.floor(totalSeconds / 60);
+        var newMinutes = currentMinutes - 1;
+        if (newMinutes < 1) newMinutes = 1;
+
+        totalSeconds = newMinutes * 60;
+        remainingSeconds = totalSeconds;
+        updateDisplay();
+      }
+
+      // Presety
+      function setPreset(mins) {
+        if (isRunning) return;
+
+        totalSeconds = mins * 60;
+        remainingSeconds = totalSeconds;
+
+        document.querySelectorAll(".preset-btn").forEach(function (btn) {
+          btn.classList.toggle(
+            "active",
+            parseInt(btn.dataset.minutes) === mins,
+          );
+        });
+
+        doneMessage.classList.remove("visible");
+        timerDisplay.classList.remove("done", "warning");
+        startBtn.style.display = "inline-block";
+        startBtn.textContent = "▶ Start";
+        updateDisplay();
+      }
+
+      // Motivace
+      var quotes = [
+        "Každý krok se počítá. 🐣",
+        "Kdo se učí, ten roste.",
+        "Dneska je ten den, kdy se posuneš dál.",
+        "Tichý fokus, velký pokrok.",
+        "Společně, i když každý sám.",
+        "Chyby jsou součást učení.",
+        "Malé kroky vedou k velkým věcem.",
+        "Tvoje budoucí já ti poděkuje.",
+      ];
+
+      document.getElementById("motivation").textContent =
+        quotes[Math.floor(Math.random() * quotes.length)];
+
+      // Init
+      updateDisplay();
+    </script>
+  </body>
+</html>

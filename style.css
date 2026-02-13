@@ -1,0 +1,619 @@
+:root {
+  --yellow: #fffa72;
+  --yellow-light: #fffdc4;
+  --yellow-dim: #f5f0a0;
+  --black: #343434;
+  --link: #1755d1;
+  --white: #ffffff;
+  --gray-light: #f7f6f0;
+  --gray: #e8e6da;
+  --shadow: rgba(52, 52, 52, 0.12);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Love Ya Like A Sister", cursive;
+  background-color: var(--yellow);
+  color: var(--black);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, var(--yellow) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, var(--yellow-dim) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, var(--yellow-light) 0%, transparent 60%);
+  opacity: 0.6;
+  z-index: -2;
+  pointer-events: none;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: radial-gradient(var(--gray) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.3;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Header */
+.header {
+  width: 100%;
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  animation: fadeDown 0.8s ease-out;
+}
+
+.header h2 {
+  font-family: "Cabin Sketch", cursive;
+  font-weight: 700;
+  font-size: 4rem;
+  color: var(--black);
+  letter-spacing: 0.5px;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  gap: 2.5rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+/* Maskot */
+.mascot-container {
+  position: relative;
+  animation: float 6s ease-in-out infinite;
+}
+
+.mascot {
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 4px 12px var(--shadow));
+  transition: transform 0.3s ease;
+}
+
+.mascot:hover {
+  transform: rotate(-8deg) scale(1.05);
+}
+
+/* Hodiny */
+.clock-section {
+  text-align: center;
+  margin-top: -1.5rem;
+}
+
+.clock {
+  font-family: "Cabin Sketch", cursive;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--black);
+}
+
+.clock-label {
+  font-size: 0.95rem;
+  color: var(--black);
+  opacity: 0.6;
+  margin-top: 0.3rem;
+}
+
+/* Timer */
+.timer-section {
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  box-shadow:
+    6px 6px 0 var(--yellow),
+    6px 6px 0 3px var(--black);
+  width: 100%;
+  max-width: 420px;
+  transition: transform 0.2s ease;
+  animation: fadeUp 1s ease-out 0.3s both;
+}
+
+.timer-section:hover {
+  transform: translateY(-2px);
+}
+
+.timer-title {
+  font-family: "Love Ya Like A Sister", cursive;
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin-bottom: 1.2rem;
+  color: var(--black);
+}
+
+.timer-display {
+  font-family: "Cabin Sketch", cursive;
+  font-weight: 700;
+  font-size: 4.5rem;
+  color: var(--black);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+
+.timer-display.warning {
+  color: #d94a38;
+}
+
+.timer-display.done {
+  color: #4caf50;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.timer-display-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+.timer-arrow {
+  font-family: "Love Ya Like A Sister", cursive;
+  font-size: 1.8rem;
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 10px;
+  width: 35px;
+  height: 35px;
+  min-width: 35px;
+  min-height: 35px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  box-shadow: 3px 3px 0 var(--gray);
+  color: var(--black);
+}
+
+.timer-set-button {
+    padding-top: 1rem;
+}
+
+.timer-arrow:hover {
+  background: var(--gray-light);
+  transform: translateY(-1px);
+  box-shadow: 4px 4px 0 var(--gray);
+}
+
+.timer-arrow:active {
+  transform: translateY(2px);
+  box-shadow: 1px 1px 0 var(--gray);
+}
+
+/* Nastavení */
+.timer-settings {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.timer-settings label {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  color: var(--black);
+  opacity: 0.7;
+}
+
+.time-input {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1.3rem;
+  width: 70px;
+  text-align: center;
+  border: 2px solid var(--black);
+  border-radius: 10px;
+  padding: 0.4rem;
+  background: var(--yellow-light);
+  color: var(--black);
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.time-input:focus {
+  border-color: var(--link);
+  box-shadow: 0 0 0 3px rgba(23, 85, 209, 0.15);
+}
+
+.timer-settings span {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 1rem;
+  opacity: 0.6;
+}
+
+/* Tlačítka */
+.timer-controls {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding-bottom: 1rem;
+}
+
+.btn {
+  font-family: "Love Ya Like A Sister", cursive;
+  font-size: 1.1rem;
+  padding: 0.7rem 1.8rem;
+  border: 3px solid var(--black);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.btn:active {
+  transform: translateY(2px);
+}
+
+.btn-primary {
+  background: var(--yellow);
+  color: var(--black);
+  box-shadow: 3px 3px 0 var(--black);
+}
+
+.btn-primary:hover {
+  background: #fff06a;
+  box-shadow: 4px 4px 0 var(--black);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  box-shadow: 1px 1px 0 var(--black);
+}
+
+.btn-secondary {
+  background: var(--white);
+  color: var(--black);
+  box-shadow: 3px 3px 0 var(--gray);
+}
+
+.btn-secondary:hover {
+  background: var(--gray-light);
+  box-shadow: 4px 4px 0 var(--gray);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  box-shadow: 1px 1px 0 var(--gray);
+}
+
+/* Progress */
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background: var(--gray);
+  border-radius: 4px;
+  margin-top: 1.2rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--yellow);
+  border-radius: 4px;
+  transition: width 1s linear;
+  box-shadow: inset 0 0 0 1px rgba(52, 52, 52, 0.15);
+}
+
+/* Motivace */
+.motivation {
+  font-size: 1.2rem;
+  text-align: center;
+  opacity: 0.7;
+  max-width: 360px;
+  line-height: 1.6;
+  margin-top: -1.5rem;
+  animation: fadeUp 1s ease-out 0.6s both;
+}
+
+/* Presets */
+.presets {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.preset-btn {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.8rem;
+  border: 2px solid var(--black);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--black);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.15s ease;
+}
+
+.preset-btn:hover {
+  opacity: 1;
+  background: var(--yellow);
+}
+
+.preset-btn.active {
+  opacity: 1;
+  background: var(--yellow);
+}
+
+/* Footer */
+.footer {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.5;
+}
+
+.footer a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Dekorace */
+.deco {
+  position: fixed;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.deco-star {
+  font-size: 3rem;
+  top: 15%;
+  left: 8%;
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+.deco-star-2 {
+  font-size: 2rem;
+  top: 60%;
+  right: 10%;
+  animation: twinkle 5s ease-in-out 1s infinite;
+}
+
+.deco-star-3 {
+  font-size: 2.5rem;
+  bottom: 20%;
+  left: 12%;
+  animation: twinkle 6s ease-in-out 2s infinite;
+}
+
+/* Done message */
+.done-message {
+  display: none;
+  font-family: "Cabin Sketch", cursive;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #4caf50;
+  margin-top: 0.5rem;
+}
+
+.done-message.visible {
+  display: block;
+  animation: fadeUp 0.5s ease-out;
+}
+
+/* === OSLAVA – kuřátko overlay === */
+.celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0;
+  background: rgba(36, 36, 36, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.6s ease;
+}
+
+.celebration-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.celebration-mascot {
+  width: 200px;
+  height: auto;
+  animation: celebrationBounce 0.6s ease-out;
+  filter: drop-shadow(0 0 20px rgba(255, 250, 114, 0.8))
+         drop-shadow(0 0 40px rgba(255, 250, 114, 0.4));
+}
+
+.celebration-text {
+  font-family: "Love Ya Like A Sister", cursive;
+  font-weight: 700;
+  font-size: 2.5rem;
+  color: var(--white);
+  text-shadow: 3px 3px 0 var(--black);
+  margin-top: 1rem;
+  animation: celebrationBounce 0.6s ease-out 0.15s both;
+}
+
+.celebration-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  filter: drop-shadow(0 0 20px rgba(255, 250, 114, 0.8))
+         drop-shadow(0 0 40px rgba(255, 250, 114, 0.4));
+}
+
+.celebration-dismiss {
+  font-family: "Love Ya Like A Sister", cursive;
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  padding: 0.6rem 2rem;
+  border: 3px solid var(--black);
+  border-radius: 14px;
+  background: var(--yellow);
+  color: var(--black);
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--black);
+  transition: all 0.15s ease;
+  animation: fadeUp 0.5s ease-out 0.5s both;
+  pointer-events: auto;
+}
+
+.celebration-dismiss:hover {
+  transform: translateY(-1px);
+  box-shadow: 4px 4px 0 var(--black);
+}
+
+.celebration-dismiss:active {
+  transform: translateY(2px);
+  box-shadow: 1px 1px 0 var(--black);
+}
+
+/* Konfety canvas */
+#confettiCanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 101;
+}
+
+/* Animace */
+@keyframes fadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.08;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes celebrationBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(40px);
+  }
+  50% {
+    transform: scale(1.1) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .timer-display {
+    font-size: 3.5rem;
+  }
+  .timer-section {
+    padding: 1.5rem 1.5rem;
+  }
+  .main {
+    padding: 1rem;
+    gap: 2rem;
+  }
+  .mascot {
+    width: 90px;
+  }
+  .celebration-mascot {
+    width: 140px;
+  }
+  .celebration-text {
+    font-size: 1.8rem;
+  }
+}
